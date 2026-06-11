@@ -1,7 +1,7 @@
 {
   "name": "DIASFIT",
   "short_name": "DIASFIT",
-  "start_url": "https://www.diasfit.com/o-meu-progresso",
+  "start_url": "https://www.diasfit.com",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",

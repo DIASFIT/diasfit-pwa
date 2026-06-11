@@ -1,10 +1,10 @@
 {
   "name": "DIASFIT",
   "short_name": "DIASFIT",
-  "start_url": "https://www.diasfit.com",
+  "start_url": "https://www.diasfit.com/o-meu-progresso",
   "display": "standalone",
   "background_color": "#ededed",
-  "theme_color": "#2b2b2b"
+  "theme_color": "#2b2b2b",
   "icons": [
     {
       "src": "https://static.wixstatic.com/media/43bd9d_31b42bbb1cdc4f2997237a725df6afa3~mv2.png",

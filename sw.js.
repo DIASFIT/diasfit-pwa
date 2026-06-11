@@ -1,45 +1,39 @@
-const CACHE_NAME = 'diasfit-cache-v3';
-const urlsToCache = [
-   '/', // Página principal
-   '/index.html', // Página inicial (se existir)
-   '/manifest.json', // O ficheiro manifest
-   '/styles.css', // CSS, se necessário
-   '/script.js', // Scripts JS, se necessário
-   '/icon-192.png', // Imagem de ícone
-   '/icon-512.png' // Outra imagem de ícone
-];
+const CACHE_NAME = 'diasfit-cache-v4';
 
 self.addEventListener('install', (event) => {
-   event.waitUntil(
-       caches.open(CACHE_NAME).then((cache) => {
-           return cache.addAll(urlsToCache);
-       })
-   );
-});
-
-self.addEventListener('fetch', (event) => {
-   event.respondWith(
-       caches.match(event.request).then((response) => {
-           return response || fetch(event.request).then((fetchResponse) => {
-               return caches.open(CACHE_NAME).then((cache) => {
-                   cache.put(event.request, fetchResponse.clone());
-                   return fetchResponse;
-               });
-           });
-       }).catch(() => caches.match('/index.html')) // Tenta carregar o index.html se não houver internet
-   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-   event.waitUntil(
-       caches.keys().then((cacheNames) => {
-           return Promise.all(
-               cacheNames.map((cache) => {
-                   if (cache !== CACHE_NAME) {
-                       return caches.delete(cache);
-                   }
-               })
-           );
-       })
-   );
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  const isStatic = url.hostname === 'static.wixstatic.com' || 
+                   url.hostname === 'fonts.googleapis.com' ||
+                   url.hostname === 'fonts.gstatic.com';
+
+  if (isStatic) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        return cached || fetch(event.request).then((response) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
+        });
+      })
+    );
+  }
 });

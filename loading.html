@@ -55,7 +55,7 @@
     width: 0%;
     background: #d4c4b4;
     border-radius: 2px;
-    animation: encher 5s ease-in-out forwards;
+    animation: encher 4s ease-in-out forwards;
   }
   @keyframes encher {
     0%   { width: 0%; }
@@ -68,7 +68,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .logo, .sub, .track { animation: none; }
-    .fill { animation: encher 5s linear forwards; }
+    .fill { animation: encher 4s linear forwards; }
   }
 </style>
 </head>
@@ -80,7 +80,7 @@
   </div>
   <script>
     var DESTINO = 'https://www.diasfit.com/o-meu-progresso';
-    var ESPERA = 5000;
+    var ESPERA = 4000;
     setTimeout(function () {
       window.location.replace(DESTINO);
     }, ESPERA);

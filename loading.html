@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>DIASFIT</title>
 
+<!-- PWA / iOS: icone e comportamento de app -->
 <link rel="manifest" href="https://diasfit.github.io/diasfit-pwa/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,84 +16,165 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
-    height: 100%;
+    min-height: 100%;
     background: #ededed;
     font-family: 'Lato', -apple-system, sans-serif;
-    overflow: hidden;
   }
-  .wrap {
-    height: 100%;
-    min-height: 100vh;
-    display: flex;
+  body { overflow-x: hidden; }
+
+  /* ===== ECRA DE CARREGAMENTO (so para quem ja e app) ===== */
+  #loading {
+    height: 100vh;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 24px;
   }
   .logo {
-    font-size: 38px;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #d4c4b4;
-    text-shadow: 0 2px 10px rgba(43,43,43,0.20);
-    line-height: 1;
-    animation: surge 0.5s ease-out;
+    font-size: 38px; font-weight: 900; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #d4c4b4;
+    text-shadow: 0 2px 10px rgba(43,43,43,0.20); line-height: 1;
   }
   .sub {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: #2b2b2b;
-    margin-top: 14px;
-    animation: surge 0.5s ease-out 0.1s both;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.28em;
+    text-transform: uppercase; color: #2b2b2b; margin-top: 14px;
   }
   .track {
-    width: 180px;
-    height: 3px;
-    background: rgba(43,43,43,0.10);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 30px;
-    animation: surge 0.5s ease-out 0.2s both;
+    width: 180px; height: 3px; background: rgba(43,43,43,0.10);
+    border-radius: 2px; overflow: hidden; margin-top: 30px;
   }
   .fill {
-    height: 100%;
-    width: 0%;
-    background: #d4c4b4;
-    border-radius: 2px;
+    height: 100%; width: 0%; background: #d4c4b4; border-radius: 2px;
     animation: encher 4s ease-in-out forwards;
   }
-  @keyframes encher {
-    0%   { width: 0%; }
-    70%  { width: 80%; }
-    100% { width: 100%; }
+  @keyframes encher { 0%{width:0%} 70%{width:80%} 100%{width:100%} }
+
+  /* ===== ECRA DE INSTRUCOES (para quem vem instalar pelo Safari) ===== */
+  #instrucoes {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 26px 140px;
   }
-  @keyframes surge {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .topo { text-align: center; margin-bottom: 30px; }
+  .topo .logo { font-size: 34px; }
+  .topo .titulo {
+    font-size: 15px; font-weight: 900; color: #2b2b2b;
+    margin-top: 18px; letter-spacing: 0.04em;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .logo, .sub, .track { animation: none; }
-    .fill { animation: encher 4s linear forwards; }
+  .topo .desc {
+    font-size: 14px; font-weight: 300; color: #2b2b2b;
+    margin-top: 8px; line-height: 1.6; max-width: 300px;
+  }
+  .passos {
+    background: #fff; border-radius: 6px; padding: 22px 20px;
+    width: 100%; max-width: 340px;
+    box-shadow: 0 4px 20px rgba(43,43,43,0.08);
+  }
+  .passo {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+  }
+  .passo:last-child { border-bottom: none; }
+  .num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    background: #d4c4b4; color: #2b2b2b;
+    font-size: 14px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .passo-texto { font-size: 14px; font-weight: 300; color: #2b2b2b; line-height: 1.5; padding-top: 3px; }
+  .passo-texto b { font-weight: 700; }
+  .icone-inline {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; vertical-align: middle;
+    background: #ededed; border-radius: 5px; margin: 0 2px;
+  }
+  .nota-fim {
+    text-align: center; font-size: 12px; font-weight: 300;
+    color: #888; margin-top: 24px; max-width: 300px; line-height: 1.6;
+  }
+
+  /* Seta a apontar para baixo (para a barra do Safari) */
+  .seta-baixo {
+    position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    animation: saltar 1.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .seta-baixo .txt {
+    font-size: 12px; font-weight: 700; color: #2b2b2b;
+    background: #d4c4b4; padding: 7px 14px; border-radius: 20px;
+    letter-spacing: 0.04em; white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(43,43,43,0.18);
+  }
+  .seta-baixo .ponta {
+    width: 0; height: 0;
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+    border-top: 11px solid #d4c4b4; margin-top: -1px;
+  }
+  @keyframes saltar {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
   }
 </style>
 </head>
 <body>
-  <div class="wrap">
+
+  <!-- CARREGAMENTO (so app) -->
+  <div id="loading">
     <div class="logo">DIASFIT</div>
     <div class="sub">A carregar</div>
     <div class="track"><div class="fill"></div></div>
   </div>
+
+  <!-- INSTRUCOES (so Safari) -->
+  <div id="instrucoes">
+    <div class="topo">
+      <div class="logo">DIASFIT</div>
+      <div class="titulo">Instalar a app no teu telemóvel</div>
+      <div class="desc">Em 3 passos rápidos, ficas com a DIASFIT no ecrã principal como uma app normal.</div>
+    </div>
+
+    <div class="passos">
+      <div class="passo">
+        <div class="num">1</div>
+        <div class="passo-texto">Carrega no botão <b>Partilhar</b> <span class="icone-inline">&#x2934;</span> na barra do teu browser, em baixo.</div>
+      </div>
+      <div class="passo">
+        <div class="num">2</div>
+        <div class="passo-texto">No menu que abre, desliza e escolhe <b>Adicionar ao ecrã principal</b> <span class="icone-inline">&#x2795;</span></div>
+      </div>
+      <div class="passo">
+        <div class="num">3</div>
+        <div class="passo-texto">Confirma em <b>Adicionar</b>, no canto superior direito. Pronto!</div>
+      </div>
+    </div>
+
+    <div class="nota-fim">Depois é só abrir a DIASFIT pelo ícone que aparece no teu ecrã principal.</div>
+  </div>
+
+  <!-- Seta a apontar para a barra do Safari -->
+  <div class="seta-baixo" id="setaBaixo" style="display:none">
+    <div class="txt">Começa aqui no Partilhar</div>
+    <div class="ponta"></div>
+  </div>
+
   <script>
     var emApp = window.navigator.standalone === true ||
                 window.matchMedia('(display-mode: standalone)').matches;
 
     if (emApp) {
+      // Ja e app: mostra loading e salta para a dashboard
+      document.getElementById('loading').style.display = 'flex';
       setTimeout(function () {
         window.location.replace('https://www.diasfit.com/o-meu-progresso');
       }, 4000);
+    } else {
+      // Veio do Safari para instalar: mostra instrucoes, fica parada
+      document.getElementById('instrucoes').style.display = 'flex';
+      document.getElementById('setaBaixo').style.display = 'flex';
     }
   </script>
 </body>

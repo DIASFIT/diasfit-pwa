@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>DIASFIT</title>
+
+<link rel="manifest" href="https://diasfit.github.io/diasfit-pwa/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DIASFIT">
+<link rel="apple-touch-icon" href="https://static.wixstatic.com/media/43bd9d_e1df573eb22c405ba751b16997cce6b1~mv2.jpg">
+
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;700;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,11 +86,14 @@
     <div class="track"><div class="fill"></div></div>
   </div>
   <script>
-    var DESTINO = 'https://www.diasfit.com/o-meu-progresso';
-    var ESPERA = 4000;
-    setTimeout(function () {
-      window.location.replace(DESTINO);
-    }, ESPERA);
+    var emApp = window.navigator.standalone === true ||
+                window.matchMedia('(display-mode: standalone)').matches;
+
+    if (emApp) {
+      setTimeout(function () {
+        window.location.replace('https://www.diasfit.com/o-meu-progresso');
+      }, 4000);
+    }
   </script>
 </body>
 </html>

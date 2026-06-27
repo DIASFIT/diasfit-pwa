@@ -5,16 +5,19 @@
   "display": "standalone",
   "background_color": "#ededed",
   "theme_color": "#2b2b2b",
+  "lang": "pt-PT",
   "icons": [
     {
       "src": "https://static.wixstatic.com/media/43bd9d_31b42bbb1cdc4f2997237a725df6afa3~mv2.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "https://static.wixstatic.com/media/43bd9d_31b42bbb1cdc4f2997237a725df6afa3~mv2.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "https://static.wixstatic.com/media/43bd9d_e1df573eb22c405ba751b16997cce6b1~mv2.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }

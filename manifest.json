@@ -1,7 +1,7 @@
 {
   "name": "DIASFIT",
   "short_name": "DIASFIT",
- "start_url": "https://diasfit.github.io/diasfit-pwa/loading.html",
+  "start_url": "https://www.diasfit.com/o-meu-progresso",
   "display": "standalone",
   "background_color": "#ededed",
   "theme_color": "#2b2b2b",

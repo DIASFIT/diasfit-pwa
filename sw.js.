@@ -1,7 +1,7 @@
-const CACHE_NAME = 'diasfit-cache-v5';
+const CACHE_NAME = 'diasfit-cache-v6';
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  // sem skipWaiting — não força controlo imediato
 });
 
 self.addEventListener('activate', (event) => {
@@ -14,15 +14,15 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    })
+    // sem clients.claim — não agarra páginas já abertas
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Nunca interferir com pedidos ao próprio site (Home e páginas Wix).
-  // Deixa passar sempre para a rede — versão ao vivo, nunca cache.
+  // Nunca interferir com o próprio site — Home e páginas Wix vêm sempre ao vivo.
   if (url.hostname === 'www.diasfit.com' || url.hostname === 'diasfit.com') {
     return;
   }

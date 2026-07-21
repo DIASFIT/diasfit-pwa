@@ -1,4 +1,4 @@
-const CACHE_NAME = 'diasfit-cache-v4';
+const CACHE_NAME = 'diasfit-cache-v5';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -20,6 +20,13 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // Nunca interferir com pedidos ao próprio site (Home e páginas Wix).
+  // Deixa passar sempre para a rede — versão ao vivo, nunca cache.
+  if (url.hostname === 'www.diasfit.com' || url.hostname === 'diasfit.com') {
+    return;
+  }
+
   const isStatic = url.hostname === 'static.wixstatic.com' || 
                    url.hostname === 'fonts.googleapis.com' ||
                    url.hostname === 'fonts.gstatic.com';

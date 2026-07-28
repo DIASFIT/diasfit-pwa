@@ -9,19 +9,19 @@
   "theme_color": "#ededed",
   "icons": [
     {
-      "src": "diasfit-icon-192.png",
+      "src": "https://static.wixstatic.com/media/43bd9d_f06b4c96430a41ebbec1176955f7c5d4~mv2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "diasfit-icon-512.png",
+      "src": "https://static.wixstatic.com/media/43bd9d_bd4e6d17a11c4e6a9ec96befc18e6582~mv2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "diasfit-icon-512-maskable.png",
+      "src": "https://static.wixstatic.com/media/43bd9d_82d5c54f2caf4b38a45e8e43c4473afc~mv2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

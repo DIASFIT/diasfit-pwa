@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--beige:#d4c4b4;--ink:#2b2b2b;--muted:#655f59;--gray:#ededed;--paper:#fff;--line:#e5dfd8}
+*{box-sizing:border-box}html,body{padding:0;margin:0;background:transparent;font-family:Lato,Arial,sans-serif;color:var(--ink);overflow-x:hidden;overflow-y:auto}
+#root{max-width:1180px;margin:0 auto;padding:24px 18px 22px}
+.hero{text-align:center;max-width:750px;margin:0 auto 29px}
+.eyebrow{display:block;text-transform:uppercase;letter-spacing:.17em;font-size:11px;font-weight:900;color:#9b8066;margin:0 0 12px}
+.hero h2{font-size:clamp(25px,3.2vw,38px);line-height:1.12;margin:0 auto 14px;max-width:700px;letter-spacing:-.035em;font-weight:900}
+.hero p{font-size:clamp(14px,1.25vw,16px);color:var(--muted);line-height:1.55;margin:0 auto;max-width:580px}
+.selector{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;max-width:max-content;margin:0 auto 26px;padding:5px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.selector button{appearance:none;background:transparent;border:0;border-radius:10px;font:800 13px Lato,Arial,sans-serif;padding:12px 22px;min-width:112px;cursor:pointer;color:#62574e;transition:background .18s,color .18s,transform .18s}
+.selector button[aria-selected=true]{background:var(--ink);color:#fff;box-shadow:0 2px 5px rgba(0,0,0,.12)}
+.selector button:focus-visible,.action:focus-visible{outline:3px solid #a18463;outline-offset:3px}
+.info{display:flex;align-items:center;justify-content:center;gap:8px;max-width:740px;margin:0 auto 22px;text-align:center;font-size:13px;color:#756d65;line-height:1.5}
+.info strong{color:#3b342e}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+.grid.cards-2{grid-template-columns:repeat(2,minmax(0,1fr));max-width:900px;margin:0 auto}
+.grid.cards-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.plan{display:flex;flex-direction:column;min-width:0;position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 9px 30px rgba(43,43,43,.065);transition:box-shadow .2s,transform .2s}
+.plan:hover{box-shadow:0 13px 32px rgba(43,43,43,.11);transform:translateY(-2px)}
+.plan.popular{border:1.5px solid #a18469;box-shadow:0 14px 32px rgba(118,87,54,.12)}
+.tag{position:absolute;top:0;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:10px;padding:7px 13px;border-radius:0 0 9px 9px;white-space:nowrap;z-index:1}
+.top{display:flex;flex-direction:column;gap:0;align-items:center;background:#e2d6c9;text-align:center;padding:31px 20px 20px;flex:0 0 auto;min-height:275px}
+.popular .top{padding-top:43px}
+.name{font-size:15px;font-weight:900;letter-spacing:.015em;line-height:1.35;min-height:40px;display:flex;align-items:center;justify-content:center}
+.price{display:flex;align-items:baseline;gap:3px;margin:11px 0 5px;font-size:clamp(36px,4vw,49px);line-height:1;font-weight:900;letter-spacing:-.06em}
+.price sup{font-weight:800;font-size:18px;letter-spacing:0;align-self:flex-start;line-height:1.35}
+.cadence{font-size:12px;font-weight:700;color:#5b5149;margin:0 0 14px}
+.desc{font-size:13px;line-height:1.5;max-width:360px;color:#50453c;margin:0 0 17px;flex:1}
+.action{border:0;border-radius:9px;background:var(--ink);color:#fff;min-height:47px;padding:12px 15px;width:100%;cursor:pointer;font:900 13px Lato,Arial,sans-serif;letter-spacing:.01em;transition:background .18s}
+.action:hover{background:#564537}.action:disabled{opacity:.68;cursor:wait}
+.notice{display:none;color:#50453c;background:#f7f4f1;border-radius:8px;border:1px solid #c6b5a4;padding:12px;margin:12px 0 0;font-size:12px;line-height:1.5;text-align:left;width:100%}.notice.visible{display:block}
+.bottom{padding:18px 21px 20px;flex:1}
+.features{padding:0;margin:0;list-style:none}.features li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;padding:9px 0;border-bottom:1px solid #f0edeb;color:#48413a}.features li:last-child{border:0}
+.features li:before{content:'✓';flex:0 0 17px;color:#927453;font-weight:900}
+.fine{margin:24px auto 0;text-align:center;font-size:12px;color:#6d665e;line-height:1.6;max-width:870px}
+.fine strong{color:var(--ink)}
+@media(min-width:900px){.grid.cards-4 .top{padding-inline:14px}.grid.cards-4 .bottom{padding:16px}.grid.cards-4 .name{font-size:13px}.grid.cards-4 .features li{font-size:12px}}
+@media(max-width:860px){#root{padding:24px 14px}.grid,.grid.cards-4{grid-template-columns:repeat(2,minmax(0,1fr))}.grid.cards-2{max-width:690px}}
+@media(max-width:600px){#root{padding:18px 13px 22px}.hero{margin-bottom:19px}.hero h2{font-size:27px;line-height:1.2}.hero p{font-size:14px}.selector{width:100%;max-width:100%;margin-bottom:21px;gap:3px}.selector button{min-width:0;flex:1;font-size:12px;padding:12px 8px}.grid,.grid.cards-2,.grid.cards-4{grid-template-columns:minmax(0,1fr);max-width:430px;margin:0 auto;gap:15px}.top{min-height:0;padding:25px 17px 18px}.popular .top{padding-top:37px}.price{font-size:45px}.name{min-height:0}.desc{flex:0 0 auto;margin:0 0 16px}.bottom{padding:14px 19px 18px}.features li{font-size:13px}.info{font-size:12px}.fine{font-size:11px;margin-top:20px}}
+@media(prefers-reduced-motion:reduce){.plan,.selector button,.action{transition:none}.plan:hover{transform:none}}
+</style></head><body>
+<main id="root"><p role="status" style="text-align:center;padding:24px;color:#555">A preparar os planos DIASFIT...</p></main>
+<script>
+const CATALOG=[{"code":"TRANSFORMACAO","group":"ONLINE","name":"PROGRAMA TRANSFORMAÇÃO","price":199,"mode":"payment","seats":1,"description":"Transforma o teu corpo em 90 dias com acompanhamento profissional e um plano totalmente adaptado a ti.","perks":["Treino totalmente personalizado","Plano alimentar ajustado ao teu estilo de vida","3 videochamadas comigo para acompanhamento próximo","Ajustes semanais para garantir progresso","Aqui não começas sozinho — tens orientação em cada passo.","Perfeito para quem quer começar a sério."],"duration":"3"},{"code":"TRANSFORMACAO_DUO","group":"ONLINE","name":"TRANSFORMAÇÃO PARTILHADA","price":340,"mode":"payment","seats":2,"description":"Transforma o teu corpo em 90 dias com acompanhamento profissional e mais \nmotivação a dois — sem falhar a meio.","perks":["    Plano de treino personalizados para cada um","    Plano alimentar adaptado ao dia a dia de cada um","    3 videochamadas para ajustar e tirar dúvidas","    Ajustes semanais para garantir progresso","Mais motivação a dois","    Menos desistências, mais resultados","    Vagas limitadas"],"duration":"3"},{"code":"DIASFIT","group":"ONLINE","name":"DIASFIT","price":49,"mode":"subscription","seats":1,"description":" Ideal para começares com consistência.","perks":["Plano de treino 100% personalizado;","Plano alimentar 100% personalizado;","1 avaliação corporal mensal;","Orientações e correções técnicas por vídeo;","Motivação e acompanhamento contínuo por whatsapp."],"duration":null},{"code":"DIASFIT_PREMIUM","group":"ONLINE","name":"DIASFIT PREMIUM","price":79,"mode":"subscription","seats":1,"description":"Mais proximidade. Menos desistências. Mais resultados.","perks":["Tudo do plano DIASFIT","1 videochamada mensal","Feedback técnico de execução por vídeo","Acompanhamento mais próximo","Escolha de quem leva os resultados a sério."],"duration":null},{"code":"ANUAL","group":"ONLINE","name":"DIASFIT ANUAL","price":549,"mode":"payment","seats":1,"description":"Para quem já decidiu que vai mudar de vez.","perks":["Acompanhamento completo durante 12 meses","Evolução contínua","Poupa 39€ face ao mensal","O melhor custo-benefício para quem quer consistência.","Ideal para quem quer compromisso real o ano inteiro."],"duration":"12"},{"code":"ANUAL_PREMIUM","group":"ONLINE","name":"DIASFIT ANUAL PREMIUM","price":900,"mode":"payment","seats":1,"description":"Transforma o teu corpo e mantém os resultados, sem voltar ao ponto de partida","perks":["Tudo do plano DIASFIT","1 videochamada mensal","Feedback técnico de execução por vídeo","Prioridade total no acompanhamento","Ajustes contínuos ao treino e alimentação","Para quem quer resultados reais, não tentativas","Sem pausas. Sem regressos. Sem recomeços."],"duration":"12"},{"code":"PT60_1","group":"PT60","name":"PT 60 1x por semana","price":130,"mode":"subscription","seats":1,"description":"4 sessões de 60 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT60_2","group":"PT60","name":"PT60 2x por semana","price":200,"mode":"subscription","seats":1,"description":"8 sessões de 60 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT60_3","group":"PT60","name":"PT60 3x por semana","price":270,"mode":"subscription","seats":1,"description":"12 sessões de 60 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT60_4","group":"PT60","name":"PT60 4x por semana","price":340,"mode":"subscription","seats":1,"description":"16 sessões de 60 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT30_1","group":"PT30","name":"PT30 1x por semana","price":90,"mode":"subscription","seats":1,"description":"4 sessões de 30 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT30_2","group":"PT30","name":"PT30 2x por semana","price":150,"mode":"subscription","seats":1,"description":"8 sessões de 30 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"PT30_3","group":"PT30","name":"PT30 3x por semana","price":200,"mode":"subscription","seats":1,"description":"12 sessões de 30 minutos por mês","perks":["Acompanhamento presencial individual continuo","Treino adaptado a ti, ajustado ao longo do tempo"],"duration":null},{"code":"DUO_1","group":"PTGRUPO","name":"PTGRUPO2 1x por semana","price":100,"mode":"subscription","seats":1,"description":"4 sessões de 60 minutos para 2 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"DUO_2","group":"PTGRUPO","name":"PTGRUPO2 2x por semana","price":160,"mode":"subscription","seats":1,"description":"8 sessões de 60 minutos para 2 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"DUO_3","group":"PTGRUPO","name":"PTGRUPO2 3x por semana","price":220,"mode":"subscription","seats":1,"description":"12 sessões de 60 minutos para 2 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"TRIO_1","group":"PTGRUPO","name":"PTGRUPO3 1x por semana","price":90,"mode":"subscription","seats":1,"description":"4 sessões de 60 minutos para 3 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"TRIO_2","group":"PTGRUPO","name":"PTGRUPO3 2x por semana","price":130,"mode":"subscription","seats":1,"description":"8 sessões de 60 minutos para 3 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"TRIO_3","group":"PTGRUPO","name":"PTGRUPO3 3x por semana","price":160,"mode":"subscription","seats":1,"description":"12 sessões de 60 minutos para 3 pessoas (valor por pessoa)","perks":["Acompanhamento presencial continuo em grupo","Treino supervisionado em grupo"],"duration":null},{"code":"ALIMENTAR","group":"ALIMENTAR","name":"Plano alimentar","price":40,"mode":"subscription","seats":1,"description":"Serviço exclusivo para atletas presenciais do DIASFIT","perks":["Plano alimentar ajustado às tuas necessidades","Estratégia focada na tua evolução e progressão","Possibilidade de ajustes conforme os resultados","Conversão de alimentos de forma simples e flexível","Acesso ao modo PRO para criares refeições do zero"],"duration":null},{"code":"AVULSO_40","group":"AVULSO","name":"Treino Avulso","price":40,"mode":"subscription","seats":1,"description":"Treino único criado para te ajudar a evoluir com estrutura, intensidade e foco no teu objetivo.","perks":["Organização simples e prática","Treino adaptado ao objetivo","Explicação dos exercícios","Sugestões de progressão"],"duration":null}];
+const GROUPS={
+ ONLINE:{title:'O acompanhamento certo para a tua evolução',description:'Treino, alimentação e orientação adaptados à tua rotina. Escolhe o compromisso que faz sentido para ti.'},
+ PT60:{title:'Treinos individuais de 60 minutos',description:'Uma hora só para ti, com orientação próxima, técnica e progressão ajustadas ao teu objetivo.'},
+ PT30:{title:'Treinos individuais de 30 minutos',description:'Treinos objetivos, consistentes e acompanhados, mesmo quando o teu tempo é limitado.'},
+ PTGRUPO:{title:'Treinar em conjunto. Evoluir com acompanhamento.',description:'Escolhe o grupo e a frequência semanal. Os valores indicados são por pessoa.'},
+ INDIVIDUAIS:{title:'Cuida dos detalhes da tua evolução',description:'Serviços complementares com acompanhamento profissional DIASFIT.'}
+};
+const GROUP_FILTER={INDIVIDUAIS:['ALIMENTAR','AVULSO']};
+const TABS={
+ ONLINE:[{id:'90DIAS',text:'90 dias',codes:['TRANSFORMACAO','TRANSFORMACAO_DUO'],desc:'Um plano completo para começar com estrutura e acompanhamento real.'},{id:'MENSAL',text:'Mensal',codes:['DIASFIT','DIASFIT_PREMIUM'],desc:'Consistência e proximidade, com pagamento mensal.'},{id:'ANUAL',text:'Anual',codes:['ANUAL','ANUAL_PREMIUM'],desc:'Acompanhamento durante 12 meses, num único pagamento.'}],
+ PTGRUPO:[{id:'DUO',text:'DUO · 2 pessoas',codes:['DUO_1','DUO_2','DUO_3'],desc:'Partilha a motivação com outra pessoa. Valor mensal por participante.'},{id:'TRIO',text:'TRIO · 3 pessoas',codes:['TRIO_1','TRIO_2','TRIO_3'],desc:'Um grupo pequeno, com acompanhamento próximo. Valor mensal por participante.'}]
+};
+const LABELS={TRANSFORMACAO:'Programa Transformação',TRANSFORMACAO_DUO:'Transformação Partilhada',DIASFIT:'DIASFIT',DIASFIT_PREMIUM:'DIASFIT Premium',ANUAL:'DIASFIT Anual',ANUAL_PREMIUM:'DIASFIT Anual Premium',PT60_1:'1× por semana',PT60_2:'2× por semana',PT60_3:'3× por semana',PT60_4:'4× por semana',PT30_1:'1× por semana',PT30_2:'2× por semana',PT30_3:'3× por semana',DUO_1:'1× por semana',DUO_2:'2× por semana',DUO_3:'3× por semana',TRIO_1:'1× por semana',TRIO_2:'2× por semana',TRIO_3:'3× por semana',ALIMENTAR:'Plano alimentar',AVULSO_40:'Treino Avulso'};
+const CTAS={TRANSFORMACAO:'Começar transformação',TRANSFORMACAO_DUO:'Começar a dois',DIASFIT:'Escolher DIASFIT',DIASFIT_PREMIUM:'Escolher Premium',ANUAL:'Escolher plano anual',ANUAL_PREMIUM:'Escolher anual Premium'};
+const RECOMMENDED={ONLINE:'TRANSFORMACAO',PT60:'PT60_2',PT30:'PT30_2',PTGRUPO:'DUO_2'};
+let activeGroup=null,activeTab={},selectedCode=null;
+let resizeId=null;
+function post(type,data={}){if(window.parent!==window)window.parent.postMessage({type,...data},'*')}
+function el(tag,cl,text){const x=document.createElement(tag);if(cl)x.className=cl;if(text!==undefined)x.textContent=text;return x}
+function height(){if(resizeId!==null)return;resizeId=requestAnimationFrame(()=>{resizeId=null;const px=Math.max(260,Math.min(9600,Math.ceil(document.getElementById('root').getBoundingClientRect().height)+34));post('DIASFIT_CARDS_RESIZE',{height:px})})}
+function notify(code,message){const card=[...document.querySelectorAll('[data-plan]')].find(x=>x.dataset.plan===code);if(!card)return;const note=card.querySelector('.notice');note.textContent=String(message||'').slice(0,340);note.classList.add('visible');const button=card.querySelector('.action');if(button)button.disabled=false;height()}
+function cardView(p,group){
+ const card=el('article','plan'+(p.code===RECOMMENDED[group]?' popular':''));card.dataset.plan=p.code;
+ if(card.classList.contains('popular'))card.append(el('span','tag','Recomendado'));
+ const top=el('div','top');top.append(el('div','name',LABELS[p.code]||p.name));
+ const amount=el('div','price');amount.append(el('sup','','€'),document.createTextNode(String(p.price).replace('.',',')));top.append(amount);
+ top.append(el('p','cadence',p.mode==='subscription'?'Mensal · renovação automática':('Pagamento único · '+(p.duration||'')+' meses')));
+ top.append(el('p','desc',p.description||'Uma opção adequada para dar continuidade ao teu progresso.'));
+ const button=el('button','action',CTAS[p.code]||'Escolher este plano');button.type='button';button.setAttribute('aria-label',(CTAS[p.code]||'Escolher este plano')+' — '+p.price+' euros');
+ button.addEventListener('click',()=>{selectedCode=p.code;for(const x of document.querySelectorAll('.notice'))x.classList.remove('visible');button.disabled=true;const note=card.querySelector('.notice');note.textContent='A validar a tua conta DIASFIT e a preparar o pagamento seguro…';note.classList.add('visible');height();post('DIASFIT_CARDS_SELECT',{code:p.code});setTimeout(()=>{button.disabled=false},18000)});
+ top.append(button,el('div','notice'));const bottom=el('div','bottom');const perks=el('ul','features');
+ for(const item of p.perks){const li=el('li','',String(item).trim());perks.append(li)}
+ bottom.append(perks);card.append(top,bottom);return card
+}
+function render(group){
+ if(!GROUPS[group])return;activeGroup=group;selectedCode=null;
+ const root=document.getElementById('root');root.replaceChildren();
+ const hero=el('header','hero');hero.append(el('span','eyebrow','DIASFIT · Acompanhamento personalizado'),el('h2','',GROUPS[group].title),el('p','',GROUPS[group].description));root.append(hero);
+ let list=CATALOG.filter(p=>GROUP_FILTER[group]?GROUP_FILTER[group].includes(p.group):p.group===group);
+ const tabs=TABS[group];if(tabs){
+  const selected=tabs.some(t=>t.id===activeTab[group])?activeTab[group]:tabs[0].id;activeTab[group]=selected;
+  const bar=el('div','selector');bar.setAttribute('role','tablist');bar.setAttribute('aria-label','Tipo de acompanhamento');
+  for(const t of tabs){const btn=el('button','',t.text);btn.type='button';btn.setAttribute('role','tab');btn.setAttribute('aria-selected',String(t.id===selected));btn.tabIndex=t.id===selected?0:-1;btn.addEventListener('click',()=>{activeTab[group]=t.id;render(group)});bar.append(btn)}root.append(bar);
+  const current=tabs.find(t=>t.id===selected);const info=el('p','info',current.desc);root.append(info);list=list.filter(p=>current.codes.includes(p.code));
+ }
+ const count=list.length;const grid=el('section','grid'+(count===2?' cards-2':count===4?' cards-4':''));grid.setAttribute('aria-label','Planos e preços DIASFIT');
+ for(const p of list)grid.append(cardView(p,group));root.append(grid);
+ const fine=el('p','fine');fine.append(document.createTextNode('Pagamento seguro através da '));fine.append(el('strong','','Stripe'));fine.append(document.createTextNode('. Os planos mensais renovam automaticamente até serem cancelados. Os programas de 3 e 12 meses são pagamentos únicos. Para concluir a compra é necessária uma conta DIASFIT.'));root.append(fine);
+ height();setTimeout(height,100)
+}
+window.addEventListener('message',event=>{if(event.source!==window.parent)return;const d=event.data;if(!d||typeof d!=='object')return;if(d.type==='DIASFIT_CARDS_SHOW')render(d.group);if(d.type==='DIASFIT_CARDS_NOTICE')notify(d.code,d.message)});
+window.addEventListener('resize',height);new ResizeObserver(height).observe(document.getElementById('root'));
+post('DIASFIT_CARDS_READY');setTimeout(()=>{if(!activeGroup)post('DIASFIT_CARDS_READY')},400);setTimeout(()=>{if(!activeGroup)post('DIASFIT_CARDS_READY')},1300);setTimeout(()=>{if(!activeGroup)document.getElementById('root').textContent='Não foi possível carregar os planos. Atualiza a página.'},7000);
+</script></body></html>
+
+[executed on device: Mac (375a69f6-e577-46b0-9ab0-cd2e79b0c696)]

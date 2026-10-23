@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#2b2b2b;--beige:#d4c4b4;--bg:#ededed}*{box-sizing:border-box}
+html,body{margin:0;background:transparent;color:var(--ink);font:16px Lato,Arial,sans-serif}
+main{max-width:720px;margin:auto;padding:22px;background:var(--bg);border-radius:10px;line-height:1.55}
+h1{font-size:22px;margin:0 0 8px}p{margin:10px 0}
+.order{background:#fff;border-radius:10px;padding:17px;margin:16px 0}
+strong{font-weight:700}.muted{font-size:13px;color:#565656}
+label{display:flex;gap:10px;align-items:flex-start;margin:14px 0}
+input[type=checkbox]{margin-top:5px;width:19px;height:19px;flex:none}
+button{width:100%;border:0;border-radius:10px;min-height:50px;background:var(--ink);color:white;font:700 16px Lato,Arial,sans-serif;padding:12px;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+#status{font-size:14px;min-height:20px} .hidden{display:none}
+</style></head><body>
+<main>
+<h1>Atualização dos pagamentos DIASFIT</h1>
+<p>Vamos transferir as próximas mensalidades da Wix para a Stripe, mantendo as condições do teu acompanhamento.</p>
+<div id="offers"><p>A consultar o teu contrato...</p></div>
+<p class="muted">Este procedimento não cobra nenhuma mensalidade agora. O cartão é introduzido e autorizado diretamente na Stripe. A tua subscrição Wix atual e os teus treinos continuam ativos enquanto a DIASFIT prepara a transição.</p>
+<p id="status" role="status" aria-live="polite"></p>
+</main>
+<script>
+(()=>{
+const $=x=>document.getElementById(x);
+const send=(type,props={})=>parent!==window&&parent.postMessage({type,...props},'*');
+const resize=()=>send('DIASFIT_MIGRATION_RESIZE',{height:Math.ceil(document.body.scrollHeight)+28});
+function notice(s){$('status').textContent=String(s||'').slice(0,300);resize()}
+function show(items){
+ $('offers').replaceChildren();
+ if(!Array.isArray(items)||!items.length){const p=document.createElement('p');p.textContent='Não tens mensalidades Wix elegíveis nesta conta. Se já tens um plano anual pago, não precisas de confirmar o cartão agora.';$('offers').append(p);resize();return}
+ for(const item of items){
+  const card=document.createElement('section');card.className='order';
+  const heading=document.createElement('strong');heading.textContent=String(item.planName||'Plano DIASFIT');
+  const summary=document.createElement('p');
+  const when=Number.isFinite(Date.parse(item.nextPayment))?new Date(item.nextPayment).toLocaleDateString('pt-PT'):'a confirmar';
+  summary.textContent='Mensalidade atual: '+String(item.amountEuros||'')+' € · Próxima data prevista: '+when;
+  card.append(heading,summary);
+  if(item.authorized){
+   const done=document.createElement('p');done.textContent='Cartão autorizado. A DIASFIT irá confirmar a passagem da próxima mensalidade.';card.append(done)
+  }else{
+   const label=document.createElement('label'),check=document.createElement('input'),span=document.createElement('span');
+   check.type='checkbox';
+   span.textContent='Autorizo que a DIASFIT guarde o meu método de pagamento na Stripe e efetue futuras mensalidades no valor indicado, a partir da data de cobrança confirmada. Posso cancelar conforme as condições do meu plano.';
+   label.append(check,span);
+   const button=document.createElement('button');button.type='button';button.textContent='Confirmar cartão na Stripe';button.disabled=true;
+   check.addEventListener('change',()=>button.disabled=!check.checked);
+   button.addEventListener('click',()=>{button.disabled=true;notice('A preparar uma confirmação segura, sem cobrança imediata...');send('DIASFIT_MIGRATION_START',{orderId:item.orderId,accept:true})});
+   card.append(label,button)
+  }
+  $('offers').append(card)
+ } resize();
+}
+addEventListener('message',e=>{
+ if(e.source!==parent||!e.data||typeof e.data!=='object')return;
+ if(e.data.type==='DIASFIT_MIGRATION_STATE'){show(e.data.items||[]);notice('')}
+ if(e.data.type==='DIASFIT_MIGRATION_NOTICE')notice(e.data.message);
+});
+send('DIASFIT_MIGRATION_READY');addEventListener('load',()=>{send('DIASFIT_MIGRATION_READY');resize()});
+})();
+</script></body></html>

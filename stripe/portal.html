@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--sand:#d4c4b4;--ink:#2b2b2b;--soft:#ededed}*{box-sizing:border-box}
+html,body{margin:0;background:transparent;color:var(--ink);font:15px Lato,Arial,sans-serif}
+main{background:var(--soft);border-radius:10px;padding:20px;max-width:860px;margin:auto;line-height:1.5}
+h2{font-size:21px;margin:0 0 10px}p{margin:8px 0 14px}button{font:700 15px Lato,sans-serif;border:0;border-radius:10px;background:var(--ink);color:#fff;padding:14px 22px;cursor:pointer;min-height:48px}
+button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-radius:8px;margin:12px 0}
+#open,#invite,#invite-panel{display:none}#notice{font-size:13px;margin-top:10px} .muted{color:#555}#invite{background:var(--sand);color:var(--ink);margin:8px 0}#invite-panel{margin-top:12px}#invite-link{width:100%;padding:12px;border:1px solid #b8ad9f;border-radius:8px;font:13px Lato,Arial}#copy{margin-top:8px}
+</style></head><body><main>
+<h2>Gerir pagamentos Stripe</h2>
+<p id="intro" class="muted">A verificar as tuas subscrições DIASFIT...</p>
+<div id="subs"></div><button id="open" type="button">Gerir cartão e subscrição</button>
+<button id="invite" type="button">Convidar segundo atleta</button>
+<div id="invite-panel"><label for="invite-link">Link individual da Transformação Partilhada</label>
+<input id="invite-link" type="url" readonly aria-label="Link de convite DIASFIT">
+<button id="copy" type="button">Copiar convite</button>
+<p class="muted">O convite é individual, válido durante 48 horas e apenas pode ser utilizado uma vez.</p></div>
+<p id="notice" role="status" aria-live="polite"></p>
+</main>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const tell=(type,data={})=>parent!==window&&parent.postMessage({type,...data},'*');
+ const resize=()=>tell('DIASFIT_PORTAL_RESIZE',{height:Math.min(3000,Math.ceil(document.body.scrollHeight)+25)});
+ function state(data){
+  const subs=Array.isArray(data?.subscriptions)?data.subscriptions:[];
+  const active=subs.filter(x=>['ACTIVE','TRIALING','PAST_DUE','CANCEL_AT_END'].includes(x.status));
+  $('subs').replaceChildren();$('open').style.display=active.length?'inline-block':'none';
+  $('invite').style.display=data?.inviteAvailable===true?'inline-block':'none';
+  if(active.length){
+   $('intro').textContent='Os pagamentos das tuas subscrições Stripe são geridos num portal seguro.';
+   for(const item of active){
+    const div=document.createElement('div');div.className='sub';
+    const b=document.createElement('strong');b.textContent=item.code||'DIASFIT';
+    const p=document.createElement('p');p.textContent='Estado: '+(item.status||'')+(item.periodEnd?' · Período pago até '+new Date(item.periodEnd).toLocaleDateString('pt-PT'):'');
+    div.append(b,p);$('subs').append(div);
+   }
+  }else{
+   $('intro').textContent=data?.inviteAvailable===true
+    ?'A tua Transformação Partilhada está ativa. Podes convidar a segunda pessoa sem qualquer novo pagamento.'
+    :'Não tens subscrições Stripe ativas. Se já tinhas um plano Wix, continua a geri-lo na área de assinaturas Wix.';
+  }resize();
+ }
+ $('open').addEventListener('click',()=>{$('open').disabled=true;$('notice').textContent='A abrir o portal seguro...';tell('DIASFIT_PORTAL_OPEN')});
+ $('invite').addEventListener('click',()=>{$('invite').disabled=true;$('notice').textContent='A preparar o convite individual...';tell('DIASFIT_INVITE_CREATE')});
+ $('copy').addEventListener('click',async()=>{
+  const el=$('invite-link');el.focus();el.select();
+  try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(el.value);$('notice').textContent='Link de convite pronto a partilhar.';}
+  catch(_){$('notice').textContent='Seleciona o link e copia-o para enviar à segunda pessoa.';}
+ });
+ addEventListener('message',e=>{
+  if(e.source!==parent||!e.data||typeof e.data!=='object')return;
+  if(e.data.type==='DIASFIT_PORTAL_STATE')state(e.data);
+  if(e.data.type==='DIASFIT_PORTAL_NOTICE'){$('notice').textContent=String(e.data.message||'').slice(0,280);$('open').disabled=false;$('invite').disabled=false;resize();}
+  if(e.data.type==='DIASFIT_INVITE_CREATED'){
+   const u=String(e.data.url||'');
+   if(!/^https:\/\/[^\s]+$/.test(u))return;
+   $('invite-link').value=u;$('invite-panel').style.display='block';$('invite').disabled=false;
+   $('notice').textContent='Convite preparado. Envia este link à segunda pessoa.';resize();
+  }
+ });
+ addEventListener('load',()=>{tell('DIASFIT_PORTAL_READY');resize()});
+ tell('DIASFIT_PORTAL_READY');setTimeout(()=>tell('DIASFIT_PORTAL_READY'),450);
+})();
+</script></body></html>

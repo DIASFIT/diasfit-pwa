@@ -90,7 +90,6 @@ function height(){if(resizeId!==null)return;resizeId=requestAnimationFrame(()=>{
 function notify(code,message){const card=[...document.querySelectorAll('[data-plan]')].find(x=>x.dataset.plan===code);if(!card)return;const note=card.querySelector('.notice');note.textContent=String(message||'').slice(0,340);note.classList.add('visible');const button=card.querySelector('.action');if(button)button.disabled=false;height()}
 function cardView(p,group){
  const premium=group==='ONLINE' && (p.code==='DIASFIT_PREMIUM'||p.code==='ANUAL_PREMIUM');
- const online=group==='ONLINE';
  const card=el('article','plan'+(premium?' premium':(p.code===RECOMMENDED[group]?' popular':'')));card.dataset.plan=p.code;
  if(premium)card.append(el('span','tag','Acompanhamento prioritário'));
  else if(card.classList.contains('popular'))card.append(el('span','tag','Mais escolhido'));
@@ -103,16 +102,10 @@ function cardView(p,group){
  button.addEventListener('click',()=>{selectedCode=p.code;for(const x of document.querySelectorAll('.notice'))x.classList.remove('visible');button.disabled=true;const note=card.querySelector('.notice');note.textContent='A validar a tua conta DIASFIT e a preparar o pagamento seguro…';note.classList.add('visible');height();post('DIASFIT_CARDS_SELECT',{code:p.code});setTimeout(()=>{button.disabled=false},18000)});
  const note=el('div','notice');const bottom=el('div','bottom');const perks=el('ul','features');
  for(const item of p.perks){const li=el('li','',String(item).trim());perks.append(li)}
- if(online){
-  bottom.append(perks);
-  const foot=el('div','purchase');
-  foot.append(button,note);
-  card.append(top,bottom,foot);
- }else{
-  top.append(button,note);
-  bottom.append(perks);
-  card.append(top,bottom);
- }
+ bottom.append(perks);
+ const foot=el('div','purchase');
+ foot.append(button,note);
+ card.append(top,bottom,foot);
  return card
 }
 function render(group){

@@ -125,8 +125,15 @@ function cardView(p,group){
  card.append(top,bottom,foot);
  return card
 }
-function render(group){
- if(!GROUPS[group])return;activeGroup=group;selectedCode=null;
+function render(group,returnCode){
+ if(!GROUPS[group])return;
+ // Restaura Mensal/Anual ou DUO/TRIO após o botão Voltar da Stripe.
+ const availableTabs=TABS[group];
+ if(returnCode && availableTabs){
+   const match=availableTabs.find(t=>t.codes.includes(returnCode));
+   if(match)activeTab[group]=match.id;
+ }
+ activeGroup=group;selectedCode=null;
  const root=document.getElementById('root');root.replaceChildren();
  const hero=el('header','hero');hero.append(el('span','eyebrow',GROUPS[group].eyebrow),el('h2','',GROUPS[group].title),el('p','',GROUPS[group].description));root.append(hero);
  let list=CATALOG.filter(p=>GROUP_FILTER[group]?GROUP_FILTER[group].includes(p.group):p.group===group);
@@ -141,7 +148,7 @@ function render(group){
  const fine=el('p','fine');fine.append(document.createTextNode(TERMS[group][activeTab[group]||'DEFAULT']||TERMS[group].DEFAULT));root.append(fine);
  height();setTimeout(height,100)
 }
-window.addEventListener('message',event=>{if(event.source!==window.parent)return;const d=event.data;if(!d||typeof d!=='object')return;if(d.type==='DIASFIT_CARDS_SHOW')render(d.group);if(d.type==='DIASFIT_CARDS_NOTICE')notify(d.code,d.message,d.pending===true)});
+window.addEventListener('message',event=>{if(event.source!==window.parent)return;const d=event.data;if(!d||typeof d!=='object')return;if(d.type==='DIASFIT_CARDS_SHOW')render(d.group,d.code);if(d.type==='DIASFIT_CARDS_NOTICE')notify(d.code,d.message,d.pending===true)});
 window.addEventListener('resize',height);new ResizeObserver(height).observe(document.getElementById('root'));
 function pedirPlanos(){post('DIASFIT_CARDS_READY')}
 pedirPlanos();setTimeout(()=>{if(!activeGroup)pedirPlanos()},400);setTimeout(()=>{if(!activeGroup)pedirPlanos()},1300);

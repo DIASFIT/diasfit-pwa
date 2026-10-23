@@ -10,8 +10,10 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
 #open,#invite,#invite-panel,#legacy-migration{display:none}
 #legacy-migration{background:#fff;border:1px solid #d4c4b4;border-radius:10px;padding:16px;margin:16px 0}
 #legacy-migration h3{font-size:17px;margin:0 0 8px}
-#legacy-migration .legacy-row{padding:8px 0;border-bottom:1px solid #ededed}
+#legacy-migration .legacy-row{padding:10px 0;border-bottom:1px solid #ededed}
 #legacy-migration .legacy-row:last-child{border-bottom:none}
+.consent-label{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:13px;line-height:1.4}
+.consent-check{margin-top:3px;width:18px;height:18px;flex:none}
 #start-migration{margin:12px 0;width:100%}#notice{font-size:13px;margin-top:10px} .muted{color:#555}#invite{background:var(--sand);color:var(--ink);margin:8px 0}#invite-panel{margin-top:12px}#invite-link{width:100%;padding:12px;border:1px solid #b8ad9f;border-radius:8px;font:13px Lato,Arial}#copy{margin-top:8px}
 </style></head><body><main>
 <h2>Gerir pagamentos Stripe</h2>
@@ -21,6 +23,10 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
 <h3>Atualização dos pagamentos DIASFIT</h3>
 <p>O teu plano Wix continua ativo. Para que as próximas mensalidades sejam feitas pela Stripe, precisamos da tua autorização.</p>
 <div id="legacy-contracts"></div>
+<label id="consent-wrap" class="consent-label" style="display:none">
+<input id="migration-consent" class="consent-check" type="checkbox">
+<span>Autorizo que a DIASFIT guarde o meu método de pagamento na Stripe e efetue futuras mensalidades no valor indicado, a partir da data de cobrança confirmada. Posso cancelar conforme as condições do meu plano.</span>
+</label>
 <button id="start-migration" type="button">Confirmar método de pagamento na Stripe</button>
 <p class="muted">Não há cobrança nesta confirmação. O preço e a data do teu contrato mantêm-se. O acesso ao acompanhamento já pago não será bloqueado.</p>
 </section>
@@ -36,15 +42,24 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
  const $=id=>document.getElementById(id);
  const tell=(type,data={})=>parent!==window&&parent.postMessage({type,...data},'*');
  const resize=()=>tell('DIASFIT_PORTAL_RESIZE',{height:Math.min(3000,Math.ceil(document.body.scrollHeight)+25)});
+ let currentLegacy=[];
  function state(data){
   const subs=Array.isArray(data?.subscriptions)?data.subscriptions:[];
   const active=subs.filter(x=>['ACTIVE','TRIALING','PAST_DUE','CANCEL_AT_END'].includes(x.status));
   $('subs').replaceChildren();$('open').style.display=active.length?'inline-block':'none';
   $('invite').style.display=data?.inviteAvailable===true?'inline-block':'none';
   const legacy=Array.isArray(data?.legacyContracts)?data.legacyContracts:[];
-  $('legacy-migration').style.display=legacy.length?'block':'none';
+  const annuals=Array.isArray(data?.annualContracts)?data.annualContracts:[];
+  currentLegacy=legacy;
+  $('legacy-migration').style.display=(legacy.length||annuals.length)?'block':'none';
   $('legacy-contracts').replaceChildren();
-  $('start-migration').style.display=legacy.some(x=>!x.authorized)?'block':'none';
+  const hasPending=legacy.some(x=>!x.authorized);
+  $('start-migration').style.display=hasPending?'block':'none';
+  $('consent-wrap').style.display=hasPending?'flex':'none';
+  if(hasPending){
+    $('start-migration').disabled=!$('migration-consent').checked;
+    $('migration-consent').onchange=()=>{$('start-migration').disabled=!$('migration-consent').checked;};
+  }
   for(const item of legacy){
    const row=document.createElement('div');row.className='legacy-row';
    const name=document.createElement('strong');name.textContent=String(item.planName||'Plano DIASFIT');
@@ -53,6 +68,15 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
      new Date(item.nextPayment).toLocaleDateString('pt-PT'):'a confirmar';
    detail.textContent=String(item.amountEuros||'')+' € / mês · Próxima cobrança prevista: '+date+
     (item.authorized?' · Autorização recebida':' · Por confirmar');
+   row.append(name,detail);$('legacy-contracts').append(row);
+  }
+  for(const item of annuals){
+   const row=document.createElement('div');row.className='legacy-row';
+   const name=document.createElement('strong');name.textContent=String(item.planName||'Plano Anual DIASFIT');
+   const detail=document.createElement('p');
+   const date=Number.isFinite(Date.parse(item.expiryDate))?
+     new Date(item.expiryDate).toLocaleDateString('pt-PT'):'2027';
+   detail.textContent='Plano Anual já pago · Período ativo até: '+date+' · Não requer autorização de cartão neste momento';
    row.append(name,detail);$('legacy-contracts').append(row);
   }
   if(active.length){
@@ -66,10 +90,20 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
   }else{
    $('intro').textContent=data?.inviteAvailable===true
     ?'A tua Transformação Partilhada está ativa. Podes convidar a segunda pessoa sem qualquer novo pagamento.'
+    :(legacy.length||annuals.length)?'O teu plano DIASFIT continua ativo. Podes gerir o método de pagamento abaixo.'
     :'Não tens subscrições Stripe ativas. Se já tinhas um plano Wix, continua a geri-lo na área de assinaturas Wix.';
   }resize();
  }
- $('start-migration').addEventListener('click',()=>{tell('DIASFIT_PORTAL_MIGRATE')});
+ $('start-migration').addEventListener('click',()=>{
+  const pending=currentLegacy.find(x=>!x.authorized);
+  if(pending?.orderId&&$('migration-consent')?.checked){
+    $('start-migration').disabled=true;
+    $('notice').textContent='A preparar uma autorização segura, sem cobrança imediata...';
+    tell('DIASFIT_PORTAL_MIGRATE',{orderId:pending.orderId,accept:true});
+  }else{
+    tell('DIASFIT_PORTAL_MIGRATE');
+  }
+ });
  $('open').addEventListener('click',()=>{$('open').disabled=true;$('notice').textContent='A abrir o portal seguro...';tell('DIASFIT_PORTAL_OPEN')});
  $('invite').addEventListener('click',()=>{$('invite').disabled=true;$('notice').textContent='A preparar o convite individual...';tell('DIASFIT_INVITE_CREATE')});
  $('copy').addEventListener('click',async()=>{

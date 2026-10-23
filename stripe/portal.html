@@ -7,11 +7,23 @@ html,body{margin:0;background:transparent;color:var(--ink);font:15px Lato,Arial,
 main{background:var(--soft);border-radius:10px;padding:20px;max-width:860px;margin:auto;line-height:1.5}
 h2{font-size:21px;margin:0 0 10px}p{margin:8px 0 14px}button{font:700 15px Lato,sans-serif;border:0;border-radius:10px;background:var(--ink);color:#fff;padding:14px 22px;cursor:pointer;min-height:48px}
 button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-radius:8px;margin:12px 0}
-#open,#invite,#invite-panel{display:none}#notice{font-size:13px;margin-top:10px} .muted{color:#555}#invite{background:var(--sand);color:var(--ink);margin:8px 0}#invite-panel{margin-top:12px}#invite-link{width:100%;padding:12px;border:1px solid #b8ad9f;border-radius:8px;font:13px Lato,Arial}#copy{margin-top:8px}
+#open,#invite,#invite-panel,#legacy-migration{display:none}
+#legacy-migration{background:#fff;border:1px solid #d4c4b4;border-radius:10px;padding:16px;margin:16px 0}
+#legacy-migration h3{font-size:17px;margin:0 0 8px}
+#legacy-migration .legacy-row{padding:8px 0;border-bottom:1px solid #ededed}
+#legacy-migration .legacy-row:last-child{border-bottom:none}
+#start-migration{margin:12px 0;width:100%}#notice{font-size:13px;margin-top:10px} .muted{color:#555}#invite{background:var(--sand);color:var(--ink);margin:8px 0}#invite-panel{margin-top:12px}#invite-link{width:100%;padding:12px;border:1px solid #b8ad9f;border-radius:8px;font:13px Lato,Arial}#copy{margin-top:8px}
 </style></head><body><main>
 <h2>Gerir pagamentos Stripe</h2>
 <p id="intro" class="muted">A verificar as tuas subscrições DIASFIT...</p>
 <div id="subs"></div><button id="open" type="button">Gerir cartão e subscrição</button>
+<section id="legacy-migration" aria-label="Atualizar método de pagamento">
+<h3>Atualização dos pagamentos DIASFIT</h3>
+<p>O teu plano Wix continua ativo. Para que as próximas mensalidades sejam feitas pela Stripe, precisamos da tua autorização.</p>
+<div id="legacy-contracts"></div>
+<button id="start-migration" type="button">Confirmar método de pagamento na Stripe</button>
+<p class="muted">Não há cobrança nesta confirmação. O preço e a data do teu contrato mantêm-se. O acesso ao acompanhamento já pago não será bloqueado.</p>
+</section>
 <button id="invite" type="button">Convidar segundo atleta</button>
 <div id="invite-panel"><label for="invite-link">Link individual da Transformação Partilhada</label>
 <input id="invite-link" type="url" readonly aria-label="Link de convite DIASFIT">
@@ -29,6 +41,20 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
   const active=subs.filter(x=>['ACTIVE','TRIALING','PAST_DUE','CANCEL_AT_END'].includes(x.status));
   $('subs').replaceChildren();$('open').style.display=active.length?'inline-block':'none';
   $('invite').style.display=data?.inviteAvailable===true?'inline-block':'none';
+  const legacy=Array.isArray(data?.legacyContracts)?data.legacyContracts:[];
+  $('legacy-migration').style.display=legacy.length?'block':'none';
+  $('legacy-contracts').replaceChildren();
+  $('start-migration').style.display=legacy.some(x=>!x.authorized)?'block':'none';
+  for(const item of legacy){
+   const row=document.createElement('div');row.className='legacy-row';
+   const name=document.createElement('strong');name.textContent=String(item.planName||'Plano DIASFIT');
+   const detail=document.createElement('p');
+   const date=Number.isFinite(Date.parse(item.nextPayment))?
+     new Date(item.nextPayment).toLocaleDateString('pt-PT'):'a confirmar';
+   detail.textContent=String(item.amountEuros||'')+' € / mês · Próxima cobrança prevista: '+date+
+    (item.authorized?' · Autorização recebida':' · Por confirmar');
+   row.append(name,detail);$('legacy-contracts').append(row);
+  }
   if(active.length){
    $('intro').textContent='Os pagamentos das tuas subscrições Stripe são geridos num portal seguro.';
    for(const item of active){
@@ -43,6 +69,7 @@ button:disabled{opacity:.5;cursor:wait}.sub{padding:12px;background:#fff;border-
     :'Não tens subscrições Stripe ativas. Se já tinhas um plano Wix, continua a geri-lo na área de assinaturas Wix.';
   }resize();
  }
+ $('start-migration').addEventListener('click',()=>{tell('DIASFIT_PORTAL_MIGRATE')});
  $('open').addEventListener('click',()=>{$('open').disabled=true;$('notice').textContent='A abrir o portal seguro...';tell('DIASFIT_PORTAL_OPEN')});
  $('invite').addEventListener('click',()=>{$('invite').disabled=true;$('notice').textContent='A preparar o convite individual...';tell('DIASFIT_INVITE_CREATE')});
  $('copy').addEventListener('click',async()=>{

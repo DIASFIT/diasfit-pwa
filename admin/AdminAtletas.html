@@ -673,6 +673,19 @@ const isPtPackName = p => {
   }
   return false;
 };
+const isOnlinePackName = p => {
+  const n = normPack(p);
+  if (!n) return false;
+  if (n.startsWith('DIASFIT') || n.startsWith('PROGRAMA TRANSFORMA') || n.startsWith('TRANSFORMA') || n.startsWith('PLANO ALIMENTAR') || n.startsWith('DIETA DIASFIT')) return true;
+  for (const k of PACKS_ONLINE) {
+    if (k.toUpperCase() === n) return true;
+  }
+  return false;
+};
+const isSemTreinoPack = p => {
+  const n = normPack(p);
+  return n === 'PLANO ALIMENTAR' || n === 'DIETA DIASFIT';
+};
 const isPtAtleta = a => {
   if (!a || a.estado === 'INATIVO') return false;
   if (a.metricasPt?.isPt) return true;
@@ -680,7 +693,7 @@ const isPtAtleta = a => {
   const ptPack = packNome(a.ptPack);
   const tipoServico = String(a._tipoServico || a.tipoServico || '').toUpperCase();
   if (tipoServico === 'PRESENCIAL') return true;
-  if (PACKS_ONLINE.has(p) && !isPtPackName(ptPack) && tipoServico !== 'PRESENCIAL') return false;
+  if (isOnlinePackName(p) && !isPtPackName(ptPack) && tipoServico !== 'PRESENCIAL') return false;
   return isPtPackName(p) || isPtPackName(ptPack) || tipoServico === 'PRESENCIAL';
 };
 const isOnlineAtleta = a => {
@@ -1149,7 +1162,7 @@ function htmlPainel() {
 
 /* ---------- Resumo PT presencial ---------- */
 function htmlResumoPt() {
-  const pt = S.dash?.resumo?.resumoPt || resumoPtAgregado(ativos());
+  const pt = resumoPtAgregado(ativos()) || S.dash?.resumo?.resumoPt;
   if (!pt || !pt.totalAtletas) return '';
   return `<section class="card pt-resumo-card" role="button" tabindex="0" data-act="filtro" data-filtro="PT" style="cursor:pointer" title="Clica para filtrar atletas de Presencial / PT">
     <div class="card-head" style="margin-bottom:10px">
@@ -2823,9 +2836,9 @@ const PB = {
   SEM_PROXIMO: {
     corpo: (t, a) => {
       const p = packNome(a.packEscolhido);
-      const treino = p && !PACKS_SEM_TREINO.has(p) ? addDaysISO(todayISO(), 28) : '';
-      const nutricao = (PACKS_ONLINE.has(p) || a.faseNutricao || a.numPlanosNutricaoReal || a._temPlanoNutricionalReal) ? addDaysISO(todayISO(), 14) : '';
-      const avaliacao = (PACKS_ONLINE.has(p) || a.tipoAvaliacao || a.diaSemanaAvaliacao) ? proxAvaliacaoPadrao(a) : '';
+      const treino = p && !isSemTreinoPack(p) ? addDaysISO(todayISO(), 28) : '';
+      const nutricao = (isOnlinePackName(p) || a.faseNutricao || a.numPlanosNutricaoReal || a._temPlanoNutricionalReal) ? addDaysISO(todayISO(), 14) : '';
+      const avaliacao = (isOnlinePackName(p) || a.tipoAvaliacao || a.diaSemanaAvaliacao) ? proxAvaliacaoPadrao(a) : '';
       return `${hint('Faltam datas de acompanhamento. Já deixei as recomendações preenchidas: só tens de confirmar ou ajustar.', 'warn')}<div class="form-grid three"><label class="fld"><span>Revisão de treino</span><input type="date" data-rf="treino" value="${esc(treino)}"><small>${treino ? 'Recomendação: +4 semanas' : 'Não aplicável ao pack atual'}</small></label><label class="fld"><span>Revisão de nutrição</span><input type="date" data-rf="nutricao" value="${esc(nutricao)}"><small>${nutricao ? 'Recomendação: +2 semanas' : 'Não aplicável ao pack atual'}</small></label><label class="fld"><span>Avaliação</span><input type="date" data-rf="avaliacao" value="${esc(avaliacao)}"><small>${avaliacao ? 'Com base no dia habitual' : 'Não aplicável ao pack atual'}</small></label></div>`;
     },
     botoes: () => [['guardar', 'Aplicar datas recomendadas', ''], ['checkin', 'Fiz um check-in hoje', 'sec']],

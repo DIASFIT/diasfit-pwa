@@ -663,18 +663,28 @@ const PACKS_PRESENCIAIS = new Set([
 const PACKS_SEM_TREINO = new Set(['Plano alimentar', 'DIETA DIASFIT']);
 
 const packNome = p => String(p || '').split('|')[0].trim();
+const normPack = p => packNome(p).toUpperCase();
+const isPtPackName = p => {
+  const n = normPack(p);
+  if (!n) return false;
+  if (n.startsWith('PT ') || n.startsWith('PT-') || n === 'AVULSO') return true;
+  for (const k of PACKS_PRESENCIAIS) {
+    if (k.toUpperCase() === n) return true;
+  }
+  return false;
+};
 const isPtAtleta = a => {
   if (!a || a.estado === 'INATIVO') return false;
   if (a.metricasPt?.isPt) return true;
   const p = packNome(a.packEscolhido);
   const ptPack = packNome(a.ptPack);
-  if (PACKS_ONLINE.has(p) && !PACKS_PRESENCIAIS.has(ptPack) && a._tipoServico !== 'PRESENCIAL') return false;
-  return PACKS_PRESENCIAIS.has(p) || PACKS_PRESENCIAIS.has(ptPack) || a._tipoServico === 'PRESENCIAL';
+  const tipoServico = String(a._tipoServico || a.tipoServico || '').toUpperCase();
+  if (tipoServico === 'PRESENCIAL') return true;
+  if (PACKS_ONLINE.has(p) && !isPtPackName(ptPack) && tipoServico !== 'PRESENCIAL') return false;
+  return isPtPackName(p) || isPtPackName(ptPack) || tipoServico === 'PRESENCIAL';
 };
 const isOnlineAtleta = a => {
   if (!a || a.estado === 'INATIVO') return false;
-  const p = packNome(a.packEscolhido);
-  if (PACKS_ONLINE.has(p) || a._tipoServico === 'ONLINE') return true;
   return !isPtAtleta(a);
 };
 
